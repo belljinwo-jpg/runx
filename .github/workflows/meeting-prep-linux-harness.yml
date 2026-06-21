@@ -1,0 +1,43 @@
+name: meeting-prep Linux harness
+
+on:
+  push:
+    branches:
+      - ci/meeting-prep-linux-harness
+
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install runx CLI
+        run: npm install --global @runxhq/cli@0.6.8
+
+      - name: Record version and discovery evidence
+        run: |
+          runx --version | tee runx-version.txt
+          runx list skills --json | tee meeting-prep-list.json
+          grep -A8 -B2 'meeting-prep' meeting-prep-list.json
+
+      - name: Run meeting-prep harness
+        run: |
+          set -o pipefail
+          runx harness ./skills/meeting-prep --json | tee meeting-prep-harness.json
+
+      - name: Upload harness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meeting-prep-linux-harness
+          path: |
+            runx-version.txt
+            meeting-prep-list.json
+            meeting-prep-harness.json
+          if-no-files-found: warn
+
