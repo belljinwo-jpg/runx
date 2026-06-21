@@ -26,6 +26,10 @@ jobs:
           grep -A8 -B2 'meeting-prep' meeting-prep-list.json
 
       - name: Run meeting-prep harness
+        env:
+          RUNX_RECEIPT_SIGN_KID: meeting-prep-ci-key
+          RUNX_RECEIPT_SIGN_ED25519_SEED_BASE64: QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI=
+          RUNX_RECEIPT_SIGN_ISSUER_TYPE: hosted
         run: |
           set -o pipefail
           runx harness ./skills/meeting-prep --json | tee meeting-prep-harness.json
@@ -40,4 +44,3 @@ jobs:
             meeting-prep-list.json
             meeting-prep-harness.json
           if-no-files-found: warn
-
